@@ -1,4 +1,4 @@
 CREATE TABLE device_types (
     id SERIAL PRIMARY KEY,
-    type VARCHAR(100) NOT NULL UNIQUE
+    name VARCHAR(100) NOT NULL UNIQUE
 );
