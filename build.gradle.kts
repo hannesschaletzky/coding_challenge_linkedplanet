@@ -39,6 +39,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:0.35.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.35.1")
     implementation("org.flywaydb:flyway-core:9.0.0")
+    implementation("org.ktorm:ktorm-core:3.3.0")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
