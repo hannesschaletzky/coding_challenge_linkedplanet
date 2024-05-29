@@ -9,6 +9,10 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     DatabaseConfig.init()
+    configureDeviceTypes()
+    configureDevices()
+    configureDeviceTypeInputs()
+    configureDeviceTypeOutputs()
     configureSerialization()
     configureDatabases()
     configureMonitoring()
