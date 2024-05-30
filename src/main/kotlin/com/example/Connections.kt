@@ -29,30 +29,34 @@ fun Application.configureConnections() {
             val connectionRequest = call.receive<ConnectionRequest>()
             val sourceDeviceName = connectionRequest.source_device_name.trim()
             val targetDeviceName = connectionRequest.target_device_name.trim()
+
             if (sourceDeviceName.isEmpty() || targetDeviceName.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest, "Please provide values for source_device_name and target_device_name")
                 return@post
             }
 
-            val sourceDeviceExists = database
-                .from(Devices)
-                .select()
-                .where { Devices.name eq sourceDeviceName }
-                .totalRecords > 0
-
-            val targetDeviceExists = database
-                .from(Devices)
-                .select()
-                .where { Devices.name eq targetDeviceName }
-                .totalRecords > 0
-
-            if (!sourceDeviceExists) {
-                call.respond(HttpStatusCode.BadRequest, "Source device does not exist")
+            val sourceDevice = retrieveDevice(sourceDeviceName)
+            if (sourceDevice == null) {
+                call.respond(HttpStatusCode.NotFound, "$sourceDeviceName not found")
                 return@post
             }
-            if (!targetDeviceExists) {
-                call.respond(HttpStatusCode.BadRequest, "Target device does not exist")
+
+            val targetDevice = retrieveDevice(targetDeviceName)
+            if (targetDevice == null) {
+                call.respond(HttpStatusCode.NotFound, "$targetDeviceName not found")
                 return@post
+            }
+
+            val availableOutputs = database
+                .from(DeviceTypeOutputs)
+                .select()
+                .where { DeviceTypeOutputs.device_type_name eq sourceDevice.device_type_name}
+                .map { row ->
+                    row[DeviceTypeOutputs.output_device_type_name]
+                }
+
+            if(!availableOutputs.contains(targetDevice.device_type_name)) {
+                call.respond(HttpStatusCode.BadRequest, "Connection forbidden. '$sourceDeviceName' is of type '${sourceDevice.device_type_name}' and can only connect to devices of type $availableOutputs")
             }
 
             try {
@@ -64,7 +68,22 @@ fun Application.configureConnections() {
                 println("ERROR: $e")
                 call.respond(HttpStatusCode.InternalServerError, "error occurred")
             }
-            call.respond("success")
+            call.respond("connection created")
         }
     }
+}
+
+private fun retrieveDevice(deviceName: String): Device? {
+    return database
+        .from(Devices)
+        .select()
+        .where { Devices.name eq deviceName }
+        .map { row ->
+            Device(
+                id = row[Devices.id]!!,
+                name = row[Devices.name]!!,
+                device_type_name = row[Devices.device_type_name]!!
+            )
+        }
+        .firstOrNull()
 }
