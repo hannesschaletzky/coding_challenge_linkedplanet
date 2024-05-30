@@ -13,6 +13,7 @@ fun Application.module() {
     configureDevices()
     configureDeviceTypeInputs()
     configureDeviceTypeOutputs()
+    configureConnections()
     configureSerialization()
     configureDatabases()
     configureMonitoring()

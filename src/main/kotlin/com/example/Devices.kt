@@ -10,14 +10,14 @@ import org.ktorm.schema.Table
 import org.ktorm.schema.int
 import org.ktorm.schema.varchar
 
-private object Devices : Table<Nothing>("devices") {
+object Devices : Table<Nothing>("devices") {
     val id = int("id").primaryKey()
     val name = varchar("name")
     val device_type_name = varchar("device_type_name")
 }
 
 @Serializable
-private class Device(val id: Int, val name: String, val device_type_name: String)
+class Device(val id: Int, val name: String, val device_type_name: String)
 
 fun Application.configureDevices() {
     routing {
